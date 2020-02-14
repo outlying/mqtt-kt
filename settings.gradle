@@ -1,0 +1,3 @@
+rootProject.name = 'MQTT-kt'
+
+include ':client'

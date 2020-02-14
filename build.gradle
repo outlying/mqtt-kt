@@ -1,0 +1,11 @@
+group 'com.antyzero.mqtt'
+version '0.0.1'
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+
+    group rootProject.group
+    version rootProject.version
+}
