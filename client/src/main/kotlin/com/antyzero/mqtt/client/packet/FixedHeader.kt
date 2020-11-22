@@ -1,5 +1,9 @@
 package com.antyzero.mqtt.client.packet
 
-data class FixedHeader(
-        private val type: Type
-)
+open class FixedHeader(
+        private val type: Type,
+        private val flags: UByte
+) {
+
+    class PublishFixedHeader(type: Type, flags: UByte) : FixedHeader(type, flags)
+}

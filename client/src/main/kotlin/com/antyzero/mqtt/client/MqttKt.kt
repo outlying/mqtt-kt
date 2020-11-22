@@ -1,6 +1,5 @@
 package com.antyzero.mqtt.client
 
-import com.antyzero.mqtt.client.packet.ControlPacketDeprecated
 import okio.*
 import java.net.Socket
 
@@ -20,8 +19,6 @@ class MqttKt(
 
         val source: BufferedSource = connectionSocket.source().buffer()
         val sink: BufferedSink = connectionSocket.sink().buffer()
-
-        ControlPacketDeprecated.Pubrel()
 
         while (true) {
             println("Is connected ${connectionSocket.isConnected}")
