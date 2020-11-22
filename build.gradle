@@ -1,4 +1,4 @@
-group 'com.antyzero.mqtt'
+group 'com.antyzero.mqttkt'
 version '0.0.1'
 
 allprojects {

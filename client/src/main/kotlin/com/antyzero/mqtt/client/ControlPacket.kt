@@ -4,7 +4,8 @@ package com.antyzero.mqtt.client
 /**
  * List of packets types according to
  *
- * http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Table_2.1_-
+ * https://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Table_2.1_-
+ * https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901022
  */
 sealed class ControlPacket(
     val type: Int,
