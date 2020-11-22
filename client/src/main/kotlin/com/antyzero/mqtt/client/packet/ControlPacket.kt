@@ -1,14 +1,17 @@
 package com.antyzero.mqtt.client.packet
 
+import com.antyzero.mqtt.client.utils.shl
+import com.antyzero.mqtt.client.utils.shr
+
 @ExperimentalUnsignedTypes
 class ControlPacket(byteArray: UByteArray) {
 
     init {
         require(byteArray.isNotEmpty()) { "Empty byte array is not accepted" }
 
-        val fixedHeader = byteArray[0]
+        val fixedHeaderBits = byteArray[0]
 
-        123 shl 2
+        val typeByte = fixedHeaderBits shr 4
     }
 
     class Buider() {
