@@ -1,64 +1,92 @@
 package com.antyzero.mqtt.client
 
+import java.lang.IllegalStateException
+
 
 /**
  * List of packets types according to
  *
- * https://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Table_2.1_-
  * https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901022
  */
 sealed class ControlPacket(
-    val type: Int,
-    val flags: Array<Boolean>,
-    val variableHeader: VariableHeader?
+        val type: Byte,
+        val flags: Flags,
+        val variableHeader: VariableHeader?
 ) {
 
     init {
         assert(type in 0..15) { "Type has to be in [0..15] range" }
-        assert(flags.size == 4) { "Four bits required" }
     }
 
-    class Connect : ControlPacket(1, FLAGS_DEFAULT, null)
+    class Connect : ControlPacket(1, Flags.Default, null)
 
-    class Connack : ControlPacket(2, FLAGS_DEFAULT, null)
+    class Connack : ControlPacket(2, Flags.Default, null)
 
-    // TODO variable header is optional here, only if QoS > 0
-    class Publish : ControlPacket(3, createPublishFlags(), VariableHeader())
+    class Publish(
+            qualityOfService: Byte,
+            duplicateDelivery: Boolean,
+            retain: Boolean
+    ) : ControlPacket(3, Flags.Publish(qualityOfService, duplicateDelivery, retain), VariableHeader())
 
-    class Puback : ControlPacket(4, FLAGS_DEFAULT, VariableHeader())
+    class Puback : ControlPacket(4, Flags.Default, VariableHeader())
 
-    class Pubrec : ControlPacket(5, FLAGS_DEFAULT, VariableHeader())
+    class Pubrec : ControlPacket(5, Flags.Default, VariableHeader())
 
-    class Pubrel : ControlPacket(6, FLAGS_COMMON, VariableHeader())
+    class Pubrel : ControlPacket(6, Flags.Common, VariableHeader())
 
-    class Pubcomp : ControlPacket(7, FLAGS_DEFAULT, VariableHeader())
+    class Pubcomp : ControlPacket(7, Flags.Default, VariableHeader())
 
-    class Subscribe : ControlPacket(8, FLAGS_COMMON, VariableHeader())
+    class Subscribe : ControlPacket(8, Flags.Common, VariableHeader())
 
-    class Suback : ControlPacket(9, FLAGS_DEFAULT, VariableHeader())
+    class Suback : ControlPacket(9, Flags.Default, VariableHeader())
 
-    class Unsubscribe : ControlPacket(10, FLAGS_COMMON, VariableHeader())
+    class Unsubscribe : ControlPacket(10, Flags.Common, VariableHeader())
 
-    class Unsuback : ControlPacket(11, FLAGS_DEFAULT, VariableHeader())
+    class Unsuback : ControlPacket(11, Flags.Default, VariableHeader())
 
-    class Pingreq : ControlPacket(12, FLAGS_DEFAULT, null)
+    class Pingreq : ControlPacket(12, Flags.Default, null)
 
-    class Pingresp : ControlPacket(13, FLAGS_DEFAULT, null)
+    class Pingresp : ControlPacket(13, Flags.Default, null)
 
-    class Disconnect : ControlPacket(14, FLAGS_DEFAULT, null)
+    class Disconnect : ControlPacket(14, Flags.Default, null)
+
+    class Auth : ControlPacket(15, Flags.Default, null)
 
     /**
      *
      */
     class VariableHeader
 
-    companion object {
+    /**
+     * Represents bits in order from highest to lowest
+     */
+    sealed class Flags(private val flags: Array<Boolean>) {
 
-        val FLAGS_DEFAULT = arrayOf(false, false, false, false)
-        val FLAGS_COMMON = arrayOf(false, false, true, false)
+        object Default : Flags(arrayOf(false, false, false, false))
 
-        fun createPublishFlags(): Array<Boolean> {
-            return arrayOf()
+        object Common : Flags(arrayOf(false, false, true, false))
+
+        class Publish(
+                qualityOfService: Byte,
+                duplicateDelivery: Boolean,
+                retain: Boolean
+        ) : Flags(listOf(duplicateDelivery)
+                .plus(qualityOfService.convertToBytes())
+                .plus(retain)
+                .toTypedArray()) {
+
+            companion object {
+
+                private fun Byte.convertToBytes() : Collection<Boolean> {
+                    return when(this) {
+                        3.toByte() -> arrayListOf(true, true)
+                        2.toByte() -> arrayListOf(true, false)
+                        1.toByte() -> arrayListOf(false, true)
+                        0.toByte() -> arrayListOf(false, false)
+                        else -> throw IllegalStateException("Accepted values from 0 to 3")
+                    }
+                }
+            }
         }
     }
 }
